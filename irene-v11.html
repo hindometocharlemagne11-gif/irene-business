@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IRENE BUSINESS - 5 Colonnes</title>
+<style>
+body{margin:0;font-family:Arial;background:#f2f2f2}
+.header{background:#0a5a0a;color:#fff;padding:15px;text-align:center;font-weight:bold;font-size:18px}
+.card{background:#fff;margin:10px;padding:15px;border-radius:12px;display:flex;justify-content:space-between;align-items:center}
+.card button{background:#0a7a0a;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:bold}
+#modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;padding:15px;box-sizing:border-box;z-index:1000}
+.box{background:#fff;padding:22px;border-radius:16px;width:100%;max-width:380px}
+.box input{width:100%;padding:13px;margin:7px 0;border:1.5px solid #ccc;border-radius:9px;box-sizing:border-box;font-size:15px}
+.npi{border:2px solid #0055ff!important;background:#eef6ff}
+.ravip{border:2px solid #7a00ff!important;background:#f3eeff}
+.btn-ok{background:#0aa50a;color:#fff;width:100%;padding:15px;border:none;border-radius:10px;font-weight:bold;font-size:16px;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="header">IRENE BUSINESS 01 97 59 35 42</div>
+<div id="list"></div>
+
+<div id="modal"><div class="box">
+<h3 id="mtitre">Commander</h3>
+<input id="nom" placeholder="1. Nom complet">
+<input id="whatsapp" placeholder="2. Numéro WhatsApp">
+<input id="npi_num" class="npi" placeholder="3. Numéro NPI (bleu)">
+<input id="ravip_num" class="ravip" placeholder="4. Numéro RAVIP (violet)">
+<input id="ville" placeholder="5. Ville / Commune">
+<button class="btn-ok" onclick="commander()">CONFIRMER COMMANDE ✅</button>
+<p style="text-align:center;color:#666;margin-top:12px" onclick="document.getElementById('modal').style.display='none'">Annuler</p>
+</div></div>
+
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getDatabase,ref,push}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+const cfg={apiKey:"AIzaSyDSL4Kp5VJECKTz_XK180IrmmRTOtN61WKQ",authDomain:"irene-business.firebaseapp.com",databaseURL:"https://irene-business-default-rtdb.firebaseio.com",projectId:"irene-business",storageBucket:"irene-business.firebasestorage.app",messagingSenderId:"1045877515941",appId:"1:1045877515941:web:6Ba58b435ed865827cf4c"};
+const app=initializeApp(cfg);
+const db=getDatabase(app);
+const services=["CIP Bénin","Acte de Naissance Sécurisé","Carte Biométrique","Passeport Bénin","IFU","RCCM","Casier Judiciaire","Carte RAVIP"];
+document.getElementById('list').innerHTML=services.map(s=>`<div class="card"><b>${s}</b><button onclick="openM('${s}')">Commander</button></div>`).join('');
+let cur="";
+window.openM=(p)=>{cur=p;document.getElementById('mtitre').innerText=p;document.getElementById('modal').style.display='flex';};
+window.commander=async()=>{
+let n=document.getElementById('nom').value.trim();
+let w=document.getElementById('whatsapp').value.trim();
+let npi=document.getElementById('npi_num').value.trim();
+let ravip=document.getElementById('ravip_num').value.trim();
+let v=document.getElementById('ville').value.trim();
+if(!n||!w||!v){alert('Nom, WhatsApp et Ville obligatoires');return;}
+await push(ref(db,'clients_irene'),{nom:n,whatsapp:w,npi_num:npi,ravip_num:ravip,ville:v,produit:cur,date:new Date().toLocaleString(),timestamp:Date.now()});
+alert('✅ Commande envoyée avec NPI et RAVIP !');document.getElementById('modal').style.display='none';
+document.getElementById('nom').value='';document.getElementById('whatsapp').value='';document.getElementById('npi_num').value='';document.getElementById('ravip_num').value='';document.getElementById('ville').value='';
+};
+</script>
+</body>
+</html>
